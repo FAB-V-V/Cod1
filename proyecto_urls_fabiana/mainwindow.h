@@ -8,11 +8,10 @@
 #include <QComboBox>
 #include <iostream>
 #include <string>
-using namespace std;
 
 class MainWindow : public QMainWindow {
 private:
-    Q_object   
+    Q_OBJECT   
 
 public:          // Constructor y destructor
     explicit MainWindow(QWidget *parent = nullptr);
@@ -48,5 +47,6 @@ int comparacion_cant_https_URL_tendencia  (int cant_https_URL,     int cant_http
 int comparacion_cant_at_URL_tendencia  (int cant_at_URL,        int cant_at_tendencia);
 int comparacion_cant_percent_URL_tendencia (int cant_percent_URL,   int cant_percent_tendencia);
 
-    return 0;
 }
+
+ #endif
