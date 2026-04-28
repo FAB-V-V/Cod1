@@ -6,8 +6,6 @@
 #include <QLineEdit>       
 #include <QLabel>
 #include <QComboBox>
-#include <iostream>
-#include <string>
 
 class MainWindow : public QMainWindow {
 private:
