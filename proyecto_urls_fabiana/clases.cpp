@@ -18,7 +18,12 @@ class caracteristicas_URL {
             this-> cant_dot = cant_dot ;
             this-> cant_slash = cant_slash ;
             this-> cant_num = cant_num ;
-            this-> cant_hyphen = cant_hyphen ;      
+            this-> cant_hyphen = cant_hyphen ;   
+            this-> cant_underscore = cant_underscore ;
+            this-> cant_ampersandt = cant_ampersand ;
+            this-> cant_https = cant_https ;
+            this-> cant_at = cant_at ;
+            this-> cant_percent = cant_percent ;   
         }
         
         //DESTRUCTOR
@@ -40,6 +45,21 @@ class caracteristicas_URL {
         int get_cant_hyphen (){
             return cant_hyphen ;
         };
+        int get_cant_underscore() {
+            return cant_underscore;
+        };
+        int get_cant_ampersand() {
+            return cant_ampersand;
+        }; 
+        int get_cant_https() {
+            return cant_https;
+        };
+        int get_cant_at() {
+            return cant_at;
+        };
+        int get_cant_percent() {
+            return cant_percent;
+        };
         
         //SETTERS
         void set_url (string url) {
@@ -57,10 +77,60 @@ class caracteristicas_URL {
         void set_cant_hyphen (int cant_hyphen){
             this-> cant_hyphen = cant_hyphen;
         };
+        void set_cant_underscore(int cant_underscore) {
+            this-> cant_underscore = cant_underscore;
+        };
+        void set_cant_ampersand(int cant_ampersand) {
+            this-> cant_ampersand = cant_ampersand;
+        };
+        void set_cant_https(int cant_https) {
+            this-> cant_https = cant_https;
+        };
+        void set_cant_at(int cant_at) {
+            this-> cant_at = cant_at;
+        };
+        void set_cant_percent(int val) {
+            this-> cant_percent = cant_percent;
+        };
         
-        //METODO
+        //METODO LENGHT
         int get_length() {
             return url.length();
+        };
+    
+        // MÉTODO CONTAR CARACTERES
+        void contarCaracteres() {
+            for (char c : url) {
+                if (c == '.') {
+                    cant_dot++;
+                }
+                else if (c == '-') {
+                    cant_hyphen++;
+                }
+                else if (c == '/') {
+                    cant_slash++;
+                }
+                else if (isdigit(c)) { 
+                    cant_num++;
+                }
+                else if (c == '&') {
+                    cant_ampersand++;
+                }
+                else if (c == '_') {
+                    cant_underscore++;
+                }
+                else if (c == '@') {
+                    cant_at++;
+                }
+                else if (c == '%') {
+                    cant_percent++;
+                }
+            }
+            
+            // Detectar HTTPS
+            if (url.find("https") != string::npos) {
+                cant_https = 1;  // booleano: 1 = tiene HTTPS, 0 = no
+            }
         };
 };
 
@@ -79,6 +149,21 @@ int get_cant_num(caracteristicas_URL &link) {
 };
 int get_cant_hyphen(caracteristicas_URL &link) {
     return link.get_cant_hyphen();
+};
+string get_cant_underscore(caracteristicas_URL &link) {     
+    return link.get_cant_underscore();
+};
+int get_cant_ampersand(caracteristicas_URL &link) {
+    return link.get_cant_ampersand();
+};
+int get_cant_https (caracteristicas_URL &link) {
+    return link.get_cant_https ();
+};
+int get_cant_at(caracteristicas_URL &link) {
+    return link.cant_at();
+};
+int get_cant_percent(caracteristicas_URL &link) {
+    return link.get_cant_percent();
 };
 
 int main() {
