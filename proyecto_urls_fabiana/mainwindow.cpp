@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
 
 // CLASE
 class caracteristicas_URL {
@@ -105,14 +104,15 @@ class caracteristicas_URL {
         int get_length() {
             return url.length();
         };
+        void contarCaracteres(); 
 
-            // Método para contar
+        // Método para contar
         void contarCaracteres() {
             for (char c : url) {
                 if (c == '.') {cant_dot++;}
                 else if (c == '-') {cant_hyphen++;}
                 else if (c == '/') {cant_slash++;}
-                // else if c== numero FALTA
+                else if (isdigit(c)) {cant_num++;}      // (Hecho por claude no hemos visto listas en c++)
                 else if (c == '&') {cant_ampersand++;}
                 else if (c == '_') {cant_underscore++;}
                 else if (c == '@') {cant_at++;}
@@ -141,7 +141,7 @@ int get_cant_num(caracteristicas_URL &link) {
 int get_cant_hyphen(caracteristicas_URL &link) {
     return link.get_cant_hyphen();
 };
-int get_cant_uderscore(caracteristicas_URL &link) {
+int get_cant_underscore(caracteristicas_URL &link) {
     return link.get_cant_underscore();
 };
 int get_cant_ampersand(caracteristicas_URL &link) {
