@@ -131,7 +131,7 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
         if (tiene_query && c == '&') {
             queries++;
         }
-    } // <-- AQUI FALTABA CERRAR LA LLAVE DEL CICLO FOR
+    } 
     
     if (tiene_query) {
         queries++; 
@@ -238,7 +238,7 @@ void simular_procesamiento_base_datos() { // Esto aplica para MALWARE.
         "proplast.co.nz"
     };
 
-    // Creación de las listas. Longitud de primeras.
+    // Creación de las listas que simulan las columnas ya generadas 
     int columna_longitudes[TAMANO_BD]; 
     int columna_puntos[TAMANO_BD];
     int columna_underscores[TAMANO_BD];
