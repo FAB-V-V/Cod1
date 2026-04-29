@@ -15,17 +15,17 @@ class caracteristicas_URL {
         string url;
         int url_length; 
         int cant_dot;
-        int cant_slash;
+        int cant_underscore;
         int cant_hyphen;
         int cant_query; 
     
     public:
         // CONSTRUCTOR CARACTERISTICAS 
-        caracteristicas_URL(string url, int url_length, int cant_dot, int cant_slash, int cant_hyphen, int cant_query) {
+        caracteristicas_URL(string url, int url_length, int cant_dot, int cant_underscore, int cant_hyphen, int cant_query) {
             this-> url = url;                       
             this-> url_length = url_length ;
             this-> cant_dot = cant_dot ;
-            this-> cant_slash = cant_slash ;
+            this-> cant_underscore = cant_underscore ;
             this-> cant_hyphen = cant_hyphen ;      
             this-> cant_query = cant_query;
         }
@@ -43,8 +43,8 @@ class caracteristicas_URL {
         int get_cant_dot() { 
             return cant_dot; 
         }
-        int get_cant_slash() {
-            return cant_slash; 
+        int get_cant_underscore() {
+            return cant_underscore; 
         }
         int get_cant_hyphen() { 
             return cant_hyphen; 
@@ -63,8 +63,8 @@ class caracteristicas_URL {
         void set_cant_dot(int cant_dot) { 
             this-> cant_dot = cant_dot; 
         }
-        void set_cant_slash(int cant_slash) { 
-            this-> cant_slash = cant_slash; 
+        void set_cant_underscore(int cant_underscore) { 
+            this-> cant_underscore = cant_underscore; 
         }
         void set_cant_hyphen(int cant_hyphen) { 
             this-> cant_hyphen = cant_hyphen; 
@@ -86,8 +86,8 @@ int get_url_length(caracteristicas_URL &link) {
 int get_cant_dot(caracteristicas_URL &link) { 
     return link.get_cant_dot(); 
 }
-int get_cant_slash(caracteristicas_URL &link) { 
-    return link.get_cant_slash(); 
+int get_cant_underscore(caracteristicas_URL &link) { 
+    return link.get_cant_underscore(); 
 }
 int get_cant_hyphen(caracteristicas_URL &link) {
     return link.get_cant_hyphen(); 
@@ -101,7 +101,7 @@ int get_cant_query(caracteristicas_URL &link) {
 // 3. FUNCIÓN PARA ANALIZAR UNA SOLA URL
 
 caracteristicas_URL analizar_una_url(string url_ingresada) {
-    int dots = 0, slashes = 0, hyphens = 0, queries = 0;
+    int dots = 0, underscores = 0, hyphens = 0, queries = 0;
     bool tiene_query = false;
     
     // Sacamos la longitud primero con .length()
@@ -114,8 +114,8 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
         if (c == '.') {
             dots++;
         }
-        else if (c == '/') {
-            slashes++;
+        else if (c == '_') {
+            underscores++;
         }
         else if (c == '-') { 
             hyphens++;
@@ -135,7 +135,7 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
     }
 
     // Después del análisis y con los contadores actualizados, toca mostrarlos según lo que se obtuvo
-    return caracteristicas_URL(url_ingresada, length, dots, slashes, hyphens, queries);
+    return caracteristicas_URL(url_ingresada, length, dots, underscores, hyphens, queries);
 }
 
 
@@ -238,7 +238,7 @@ void simular_procesamiento_base_datos() { // Esto aplica para MALWARE.
     // Creación de las listas. Longitud de primeras.
     int columna_longitudes[TAMANO_BD]; 
     int columna_puntos[TAMANO_BD];
-    int columna_slashes[TAMANO_BD];
+    int columna_underscores[TAMANO_BD];
     int columna_guiones[TAMANO_BD];
     int columna_queries[TAMANO_BD];
 
@@ -249,7 +249,7 @@ void simular_procesamiento_base_datos() { // Esto aplica para MALWARE.
         // Asignación de listas, importante tener en cuenta que acá las posiciones "i" se refieren a URLS únicas
         columna_longitudes[i] = get_url_length(obj_procesado); 
         columna_puntos[i]     = get_cant_dot(obj_procesado);
-        columna_slashes[i]    = get_cant_slash(obj_procesado);
+        columna_underscores[i]    = get_cant_underscore(obj_procesado);
         columna_guiones[i]    = get_cant_hyphen(obj_procesado);
         columna_queries[i]    = get_cant_query(obj_procesado);
         
@@ -285,7 +285,7 @@ int main() {
     cout << "URL Analizada: " << get_url(obj_url) << endl;
     cout << "Longitud (url_length): " << get_url_length(obj_url) << endl; 
     cout << "Puntos (cant_dot): " << get_cant_dot(obj_url) << endl;
-    cout << "Slashes (cant_slash): " << get_cant_slash(obj_url) << endl;
+    cout << "Underscores (cant_underscore): " << get_cant_underscore(obj_url) << endl;
     cout << "Guiones (cant_hyphen): " << get_cant_hyphen(obj_url) << endl;
     cout << "Queries (cant_query): " << get_cant_query(obj_url) << endl;
     
