@@ -142,8 +142,24 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
 }
 
 
+// 4. BASE DE DATOS EN MEMORIA
+class BaseDatosURL {
+public:
+    vector<RegistroURL> urls;
 
-// 4. FUNCIONES DE ESTADÍSTICA (Medidas de Tendencia Central y de Dispersión)
+    void agregar(const RegistroURL& r);
+    ResultadoAnalisis analizar(const string& url) const;
+    map<TipoURL, int> distribucionPorTipo() const;
+    int total() const;
+
+    static RegistroURL extraerParametros(const std::string& url);
+
+private:
+    double distancia(const RegistroURL& a, const RegistroURL& b) const;
+};
+
+
+// 5. FUNCIONES DE ESTADÍSTICA (Medidas de Tendencia Central y de Dispersión)
 // Importantísimo acá: Estas funciones son para las "columnas" de las características ya creadas. Se almacenan como una lista []
 
 // PROMEDIO 
@@ -251,10 +267,10 @@ void simular_procesamiento_base_datos() { // Esto aplica para MALWARE.
         
         // Asignación de listas, importante tener en cuenta que acá las posiciones "i" se refieren a URLS únicas
         columna_longitudes[i] = get_url_length(obj_procesado); 
-        columna_puntos[i]   = get_cant_dot(obj_procesado);
-        columna_underscores[i]   = get_cant_underscore(obj_procesado);
-        columna_guiones[i]    = get_cant_hyphen(obj_procesado);
-        columna_queries[i]    = get_cant_query(obj_procesado);
+        columna_puntos[i]  = get_cant_dot(obj_procesado);
+        columna_underscores[i] = get_cant_underscore(obj_procesado);
+        columna_guiones[i] = get_cant_hyphen(obj_procesado);
+        columna_queries[i] = get_cant_query(obj_procesado);
         
         cout << "URL [" << i << "] procesada." << endl;
     }
@@ -274,30 +290,29 @@ void simular_procesamiento_base_datos() { // Esto aplica para MALWARE.
     cout << "Varianza: " << var << endl;
     cout << "Desv. Estandar: " << desv << endl;
 }
+    
 
-
-
-int main() {
-    cout << "SISTEMA DE DETECCION DE URLS (BOSQUEJO Y SIMULACION PEQUENA)" << endl;
-    
-    // PRUEBA 1: Analisis de URL individual
-    cout << " ANALISIS INDIVIDUAL " << endl;
-    string mi_url_para_analizar = "myspace.com/video/vid/30602581"; // Esta URL es benigna y es sacada también de la base de datos
-    caracteristicas_URL obj_url = analizar_una_url(mi_url_para_analizar);
-    
-    cout << "URL Analizada: " << get_url(obj_url) << endl;
-    cout << "Longitud (url_length): " << get_url_length(obj_url) << endl; 
-    cout << "Puntos (cant_dot): " << get_cant_dot(obj_url) << endl;
-    cout << "Underscores (cant_underscore): " << get_cant_underscore(obj_url) << endl;
-    cout << "Guiones (cant_hyphen): " << get_cant_hyphen(obj_url) << endl;
-    cout << "Queries (cant_query): " << get_cant_query(obj_url) << endl;
-    
-    // PRUEBA 2: Simulación del procesamiento de la base de datos. 
-    // Claramente esto es a pequeña escala pero el código muestra el seguimiento general para después replicarlo
-    simular_procesamiento_base_datos();
-    
-    return 0;
-}
+//int main() {
+//    cout << "SISTEMA DE DETECCION DE URLS (BOSQUEJO Y SIMULACION PEQUENA)" << endl;
+//    
+//    // PRUEBA 1: Analisis de URL individual
+//    cout << " ANALISIS INDIVIDUAL " << endl;
+//    string mi_url_para_analizar = "myspace.com/video/vid/30602581"; // Esta URL es benigna y es sacada también de la base de datos
+//    caracteristicas_URL obj_url = analizar_una_url(mi_url_para_analizar);
+//    
+//    cout << "URL Analizada: " << get_url(obj_url) << endl;
+//    cout << "Longitud (url_length): " << get_url_length(obj_url) << endl; 
+//    cout << "Puntos (cant_dot): " << get_cant_dot(obj_url) << endl;
+//    cout << "Underscores (cant_underscore): " << get_cant_underscore(obj_url) << endl;
+//    cout << "Guiones (cant_hyphen): " << get_cant_hyphen(obj_url) << endl;
+//    cout << "Queries (cant_query): " << get_cant_query(obj_url) << endl;
+//    
+//    // PRUEBA 2: Simulación del procesamiento de la base de datos. 
+//    // Claramente esto es a pequeña escala pero el código muestra el seguimiento general para después replicarlo
+//    simular_procesamiento_base_datos();
+//    
+//    return 0;
+//}
 
 
         
