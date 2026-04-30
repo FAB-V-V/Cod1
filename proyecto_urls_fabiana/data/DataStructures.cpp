@@ -3,25 +3,29 @@
 
 #include <DataStructures.cpp>
 
-caracteristicas_URL analizar_una_url(string url_ingresada) {
-    int dots = 0, underscores = 0, hyphens = 0, queries = 0;
+RegistroURL BaseDatosURL::extraerParametros(const std::string& url) {
+    RegistroURL r;
+    r.urlLength  = url.size();
+    r.dots = 0;
+    r.underscores = 0;
+    r.hyphens = 0;
+    r.queries = 0;
+    return r;
+
     bool tiene_query = false;
     
-    // Sacamos la longitud primero con .length()
-    int length = url_ingresada.length();
-
     // Este ciclo recorre el string de la URL. Se deben almacenar como tal para hacer el análisis
     for (int i = 0; i < length; i++) {
         char c = url_ingresada[i];
         
         if (c == '.') {
-            dots++;
+            r.dots++;
         }
         else if (c == '_') {
-            underscores++;
+            r.underscores++;
         }
         else if (c == '-') { 
-            hyphens++;
+            r.hyphens++;
         }
         
         // Lógica para los componentes de consulta (Query), acá se analiza qué hay después del ? y cómo el & está separando subdominios
@@ -29,14 +33,12 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
         tiene_query = true;
         }
         if (tiene_query && c == '&') {
-            queries++;
+            r.queries++;
         }
     }
     
     if (tiene_query) {
-        queries++; 
+        r.queries++; 
     }
 
-    // Después del análisis y con los contadores actualizados, toca mostrarlos según lo que se obtuvo
-    return caracteristicas_URL(url_ingresada, length, dots, underscores, hyphens, queries);
 }
