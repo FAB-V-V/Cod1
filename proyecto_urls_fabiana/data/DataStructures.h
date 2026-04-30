@@ -131,7 +131,7 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
         if (tiene_query && c == '&') {
             queries++;
         }
-    } // <-- AQUI FALTABA CERRAR LA LLAVE DEL CICLO FOR
+    }
     
     if (tiene_query) {
         queries++; 
@@ -251,8 +251,8 @@ void simular_procesamiento_base_datos() { // Esto aplica para MALWARE.
         
         // Asignación de listas, importante tener en cuenta que acá las posiciones "i" se refieren a URLS únicas
         columna_longitudes[i] = get_url_length(obj_procesado); 
-        columna_puntos[i]     = get_cant_dot(obj_procesado);
-        columna_underscores[i]    = get_cant_underscore(obj_procesado);
+        columna_puntos[i]   = get_cant_dot(obj_procesado);
+        columna_underscores[i]   = get_cant_underscore(obj_procesado);
         columna_guiones[i]    = get_cant_hyphen(obj_procesado);
         columna_queries[i]    = get_cant_query(obj_procesado);
         
