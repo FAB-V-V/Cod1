@@ -1,36 +1,49 @@
 // eyyyy aca vamos a hacer esto jejejej
 // Proyecto de Fabiana: declaración de MainWindow — input de URL, barras de parámetros y gráfica de tendencias
 
+#pragma once
 #include <QMainWindow>
-#include <QPushButton>      
-#include <QLineEdit>       
+#include <QLineEdit>
+#include <QPushButton>
 #include <QLabel>
-#include <QComboBox>
+#include <QProgressBar>
+#include "data/DataStructures.h"
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT   // ← bien: antes de cualquier sección public/private  
+    Q_OBJECT   
 
 public:          // Constructor y destructor
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private:        //Toda la parte gráfica de Qt
-    // OUTPUT: 
-    QChart* Grafica_tendencias; // gráfica 1
-    QLabel*      Informe_tendencia; //muestra un informe sobre como se comportan las 4 tendencias
+    void setupUI();
+    void mostrarResultado(const ResultadoAnalisis& r);
 
-    // INPUT: donde el usuario escribe la URL
-    QLabel*      ingresar_URL;          // texto "Ingresa tu URL:"
-    QLineEdit*   campo_URL;             // caja de texto
+    QLineEdit*    inputURL;
+    QPushButton*  btnAnalizar;
+    QPushButton*  btnCargarCSV;
+    QLabel*       lblClasificacion;
+    QLabel*       lblConfianza;
 
-    // OUTPUT: resultado del análisis
-    QLabel*      Informe_URL_tendencia; // muestra la clasificación (phishing, malware, defacement o benign)
-    QChart* Grafica_URL_tendencia; // gráfica 2
+    QProgressBar* url_length;
+    QProgressBar* cant_dot;
+    QProgressBar* cant_underscore;
+    QProgressBar* cant_hyphen;
+    QProgressBar* cant_query;
+
+    QProgressBar* barBenigna;
+    QProgressBar* barPhising;
+    QProgressBar* barDefacement;
+    QProgressBar* barMaleware;
+    BaseDatosURL  db;
 };
 
 
-tendencia analisis_tendencias (tendencia phising, tendencia maleware, tendencia defacement, tendencia benign);
-
+private slots:
+    void onAnalizarClicked();
+    void onCargarCSVClicked();
+};
 
 int comparacion_cant_length_URL_tendencia (int cant_length_URL,    int cant_length_tendencia);
 int comparacion_cant_dot_URL_tendencia (int cant_dot_URL,       int cant_dot_tendencia);
