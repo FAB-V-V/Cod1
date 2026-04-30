@@ -171,7 +171,7 @@ void ordenar_lista(int lista[], int tamano) {
 
 // MEDIANA
 float calcular_mediana(int lista_original[], int tamano) {
-    int copia[100]; 
+    int copia[]; 
     for(int i = 0; i < tamano; i++) {
         copia[i] = lista_original[i];
     }
