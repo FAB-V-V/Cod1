@@ -45,4 +45,4 @@ int comparacion_cant_percent_URL_tendencia (int cant_percent_URL,   int cant_per
 
 }
 
- #endif
+ #pragma once
