@@ -543,3 +543,261 @@ Qt tiene un paso de preprocesamiento llamado MOC (Meta-Object Compiler) que corr
 **¿Por qué usar `const std::string&` y no `std::string` en los parámetros?**
 
 Cuando pasás un `std::string` por valor (`void f(std::string s)`), C++ copia todo el string cada vez que llamás a la función. Si el string es largo o la función se llama muchas veces, eso es tiempo y memoria desperdiciada. Pasar por referencia constante (`const std::string& s`) le dice al compilador "usá el original sin copiarlo, y prometé que no lo vas a modificar". Es la forma estándar de pasar strings y objetos que no querés modificar.
+
+---
+
+## Errores concretos que tenés ahora — encontralos y arreglalos vos
+
+Esta sección describe exactamente qué está mal en cada archivo en este momento. No es una lista de soluciones: es una lista de pistas. Para cada error se explica qué está mal y por qué rompe el programa, pero la corrección la tenés que encontrar vos.
+
+---
+
+### Error A — `data/DataStructures.h`: el archivo no tiene include guard
+
+Mirá la primera línea del archivo. Ahora mirá cómo empieza `data/DataLoader.h`. ¿Qué diferencia hay?
+
+Los include guards (o `#pragma once`) evitan que el compilador procese el mismo archivo dos veces si se incluye desde varios lugares. Sin eso, todas las clases y funciones quedan definidas múltiples veces y el compilador falla con errores de "redefinición".
+
+**Pregunta:** ¿Qué directiva de una sola línea necesitás agregar al principio del archivo para que esto no pase?
+
+---
+
+### Error B — `data/DataStructures.h`: `using namespace std` en un archivo `.h`
+
+`using namespace std` le dice al compilador "cuando veas `string`, buscalo en el namespace `std`". Si eso está en un `.h`, se "contagia" a *todos* los archivos que lo incluyen, incluso si ellos no querían eso. En proyectos grandes esto genera colisiones de nombres muy difíciles de rastrear.
+
+La regla es: nunca pongas `using namespace` en un `.h`. En un `.cpp` es aceptable porque solo afecta ese archivo.
+
+**Pregunta:** Si sacás `using namespace std`, ¿cómo tenés que escribir `string` en todos los lugares donde aparece? ¿Y `vector`, `map`?
+
+---
+
+### Error C — `data/DataStructures.h`: `BaseDatosURL` usa tipos que no existen en este archivo
+
+Mirá la sección `// 4. BASE DE DATOS EN MEMORIA`. La clase `BaseDatosURL` usa `RegistroURL`, `TipoURL` y `ResultadoAnalisis`. Ahora buscá en el mismo archivo dónde están definidos esos tipos. ¿Los encontrás?
+
+No están. El compilador llega a `vector<RegistroURL>` y no sabe qué es `RegistroURL` porque nadie lo definió antes. Recordá que el compilador lee el archivo de arriba hacia abajo: si usás un tipo, ese tipo tiene que estar *antes* en el archivo.
+
+**Pregunta:** ¿Qué tres cosas tenés que agregar al archivo (el `enum class TipoURL`, el `struct RegistroURL` y el `struct ResultadoAnalisis`) y en qué orden tienen que aparecer para que `BaseDatosURL` pueda usarlos?
+
+---
+
+### Error D — `data/DataStructures.h`: cuerpos de funciones en el `.h`
+
+Las funciones `calcular_promedio`, `ordenar_lista`, `calcular_mediana`, `calcular_rango`, `elevar_potencia`, `calcular_varianza`, `calcular_desviacion` y `simular_procesamiento_base_datos` tienen su cuerpo completo (el código entre `{` y `}`) dentro del `.h`.
+
+¿Cuál es el problema? Recordá lo que dice el paso 1 sobre ODR. Si este `.h` lo incluye `mainwindow.cpp` y también lo incluye `DataStructures.cpp`, el compilador ve esas funciones *definidas dos veces*, y el linker no sabe cuál de las dos usar.
+
+La regla es: en el `.h` van solo las *declaraciones* (firma de la función, sin cuerpo). En el `.cpp` van las *definiciones* (con el cuerpo).
+
+**Pregunta:** ¿Cómo se ve una declaración de función sin cuerpo? Ejemplo: `float calcular_promedio(int lista[], int tamano);` — notá el `;` al final y que no hay `{...}`. ¿Cuántas de tus funciones tenés que convertir a esa forma en el `.h` y mover el cuerpo al `.cpp`?
+
+---
+
+### Error E — `data/DataStructures.h`: `int copia[];` es C++ inválido
+
+Mirá la función `calcular_mediana`. En la primera línea del cuerpo dice:
+
+```cpp
+int copia[];
+```
+
+Esto no compila en C++ estándar. Un array en C++ necesita tener su tamaño definido en tiempo de compilación (como `int copia[10]`) o usar un mecanismo dinámico. `int copia[]` sin tamaño es un array de tamaño desconocido — el compilador no sabe cuánta memoria reservar.
+
+Ahora pensá en el problema de fondo: la función recibe `int tamano` que solo se conoce cuando el programa está corriendo. Si el dataset tiene 100 URLs, `tamano` es 100. Si tiene 64.000, es 64.000. Un array C con `[]` no puede cambiar de tamaño en tiempo de ejecución.
+
+La solución está en la biblioteca estándar de C++. Hay un tipo de dato diseñado exactamente para esto: una lista que crece dinámicamente sin límite de tamaño. La declaración se incluye con `#include <vector>` y se usa así:
+
+```cpp
+std::vector<int> copia;   // lista vacía
+copia.push_back(5);       // agrega el número 5
+```
+
+**Pregunta:** ¿Cómo reemplazarías la línea `int copia[];` y el loop que copia los datos, usando `std::vector<int>` en lugar de un array? ¿Cómo le pasarías ese vector a `ordenar_lista` si actualmente esa función espera `int lista[]`?
+
+---
+
+### Error F — `data/DataStructures.h`: falta `calcular_moda`
+
+El proyecto ahora tiene **5 medidas** de tendencia central y dispersión:
+
+| # | Nombre | Qué mide |
+|---|--------|----------|
+| 1 | Media (promedio) | El valor promedio de la lista |
+| 2 | Mediana | El valor del centro cuando la lista está ordenada |
+| 3 | **Moda** | El valor que **más veces se repite** |
+| 4 | Rango | La diferencia entre el máximo y el mínimo |
+| 5 | Desviación estándar | Qué tan dispersos están los datos alrededor de la media |
+
+La moda no está implementada. Necesitás agregar `calcular_moda`.
+
+**Algoritmo para la moda:** recorrés la lista contando cuántas veces aparece cada valor (un `map<int,int>` donde la clave es el valor y el contenido es cuántas veces apareció). Después buscás cuál tiene el conteo más alto. Ese es la moda.
+
+**Pregunta:** ¿Cómo declarás esa función en el `.h` y cómo la implementás en el `.cpp`? ¿Qué retorna si la lista está vacía?
+
+---
+
+### Error G — `data/DataStructures.cpp`: incluye el archivo equivocado
+
+La primera línea que no es comentario dice:
+
+```cpp
+#include <DataStructures.cpp>
+```
+
+Hay dos errores en esa sola línea:
+
+1. **Nunca se hace `#include` de un `.cpp`**. Los `.cpp` no se incluyen: se compilan por separado y se "unen" al final. Si incluís un `.cpp`, estás pegando todo su código textualmente acá, y el linker termina viendo todo definido dos veces.
+
+2. **Los ángulos `<>` son para headers del sistema** (como `<iostream>`, `<vector>`). Para archivos del proyecto propio se usan comillas: `"DataStructures.h"`.
+
+**Pregunta:** ¿Qué línea debería ir ahí en su lugar?
+
+---
+
+### Error H — `data/DataStructures.cpp`: hay código después de un `return`
+
+Mirá la función `extraerParametros`. En algún punto dice `return r;` y después del `return` sigue código (el loop que cuenta los caracteres). Ese código nunca se ejecuta — el `return` termina la función.
+
+Además, ese loop usa variables que no existen en ese scope: `length` (no está declarada) y `url_ingresada` (el parámetro se llama `url`).
+
+**Pregunta:** ¿Por qué el compilador no se queja del código muerto en muchos casos? ¿Qué tenés que hacer para que el loop realmente cuente los caracteres? Pista: mirá cómo lo hace `analizar_una_url` en `DataStructures.h`.
+
+---
+
+### Error I — `data/DataStructures.cpp`: los nombres de campo no existen
+
+En el mismo loop problemático, se usan `r.dots`, `r.underscores`, `r.hyphens`, `r.queries`. Pero mirá el `struct RegistroURL` que definiste (o que vas a definir). ¿Esos campos existen con esos nombres?
+
+El compilador es exacto con los nombres. `r.numDots` y `r.dots` son completamente distintos para él, aunque para vos signifiquen lo mismo.
+
+**Pregunta:** ¿Cuáles son los nombres correctos de los 9 campos de `RegistroURL`? Pista: los definís vos cuando escribas el struct en el paso anterior.
+
+---
+
+### Error J — `data/DataLoader.cpp`: le faltan los includes y la mitad del código
+
+Abrí el archivo. Lo que hay ahora es solo la función `cargarDemo`, y sin los `#include` necesarios para que compile.
+
+Hay dos cosas que faltan:
+
+**1. Los includes.** El `.cpp` usa `BaseDatosURL`, `TipoURL` y `RegistroURL`. ¿Qué archivo `.h` los declara? Ese `#include` tiene que estar al principio.
+
+**2. La función `cargarCSV`** — la que abre un archivo CSV, lee línea por línea, y construye un `RegistroURL` por cada fila. Esta es la función que le permite al programa cargar un dataset real en lugar de los datos de ejemplo. Está declarada en el `.h` pero no implementada en el `.cpp`.
+
+El formato del CSV que tiene que leer es:
+```
+NumDots;UrlLength;NumDash;AtSymbol;NumUnderscore;NumPercent;NumAmpersand;NumNumericChars;NoHttps;Label
+2;25;0;0;0;0;0;3;0;0
+```
+Separador `;`, primera línea es encabezado (hay que saltearla), `Label` es `0` para Benigna y `1` para Maliciosa.
+
+Para leer archivos en Qt se usa `QFile` y `QTextStream`. Incluís `<QFile>` y `<QTextStream>`, y el patrón básico es:
+
+```cpp
+QFile archivo(QString::fromStdString(ruta));
+if (!archivo.open(QIODevice::ReadOnly | QIODevice::Text)) return;  // si no abre, salir
+
+QTextStream in(&archivo);
+in.setEncoding(QStringConverter::Utf8);
+in.readLine(); // saltar encabezado
+
+while (!in.atEnd()) {
+    QString linea = in.readLine();
+    QStringList columnas = linea.split(';');
+    // columnas[0] es el primer dato, columnas[1] el segundo, etc.
+    // columnas[i].toInt() convierte el texto a número entero
+}
+```
+
+**3. La función `cargar`** — el punto de entrada que decide si cargar del CSV o usar demo. Está declarada en el `.h` pero no existe en el `.cpp`.
+
+**Pregunta:** ¿Cómo implementarías `cargar`? Si `rutaCSV` está vacío, llama a `cargarDemo`. Si no está vacío, llama a `cargarCSV`. Y si después de llamar a `cargarCSV` el vector de urls quedó vacío (porque el archivo no existía o tenía errores), llama igualmente a `cargarDemo` como respaldo.
+
+---
+
+### Error K — `mainwindow.h`: `private slots:` está afuera de la clase
+
+Este es el error que hace que el programa no corra en Qt aunque compile.
+
+Mirá el archivo. En la línea donde está el `};` que cierra la clase `MainWindow`, contá las llaves. Después de ese `};`, ¿qué aparece?
+
+```cpp
+};          // ← acá cierra MainWindow
+
+private slots:       // ← esto está AFUERA de la clase
+    void onAnalizarClicked();
+    void onCargarCSVClicked();
+};          // ← segundo }; que no cierra nada
+```
+
+`private slots:` es una sección especial que Qt entiende, pero *solo puede estar dentro de una clase que tenga `Q_OBJECT`*. Si está afuera, el compilador C++ no sabe qué hacer con eso y falla.
+
+El `Q_OBJECT` está en `MainWindow`. Los slots tienen que estar dentro de `MainWindow`. La sección `private slots:` tiene que aparecer antes del `};` que cierra la clase.
+
+**Pregunta:** ¿Dónde exactamente, dentro del cuerpo de la clase, ubicarías la sección `private slots:` con sus dos funciones?
+
+---
+
+### Error L — `mainwindow.h`: sobran llaves y un segundo `#pragma once`
+
+Después de los problemas del error K, quedan en el archivo:
+- Un `}` suelto (línea 59)
+- Un `#pragma once` al final del archivo (línea 61)
+
+El `#pragma once` al final no hace nada — solo tiene efecto al principio del archivo (ya lo tenés correcto en la línea 4). El `}` suelto rompe el parsing del compilador.
+
+**Pregunta:** ¿Cuántas llaves de cierre necesita el archivo en total? Contá los `{` que abren y los `}` que cierran. Tenés que tener el mismo número de cada uno.
+
+---
+
+### Error M — `mainwindow.h`: declaraciones de funciones que ya no tienen sentido
+
+Las líneas 48–58 declaran funciones como `comparacion_cant_length_URL_tendencia(...)`. Esas funciones nunca se implementaron, usan parámetros con nombres de campos que ya no existen, y no se llaman desde ningún lado.
+
+Son restos de un diseño anterior que quedaron ahí y van a causar errores de linker ("función declarada pero no definida").
+
+**Pregunta:** ¿Hay alguna razón para mantener esas declaraciones? Si no se implementan y no se usan, ¿qué debería pasar con ellas?
+
+---
+
+### Error N — `mainwindow.cpp`: está vacío
+
+El archivo solo tiene dos líneas de comentario. Nada funciona hasta que este archivo esté implementado.
+
+Los cuatro métodos que necesitás escribir acá son exactamente los mismos que describe el paso 8 de este documento: `MainWindow::MainWindow()` (constructor), `setupUI()`, `onAnalizarClicked()`, `onCargarCSVClicked()`, y `mostrarResultado()`.
+
+---
+
+## Nuevo enfoque: las 5 medidas aplicadas al dataset
+
+Antes se pensaba en las medidas de tendencia central solo para analizar URLs individuales. El enfoque nuevo es aplicarlas a las **columnas del dataset**:
+
+Cuando cargás un CSV con 10.000 URLs, el dataset tiene 9 columnas numéricas (una por feature). Para la columna `urlLength`, por ejemplo, podés calcular:
+- Media: el largo promedio de todas las URLs en el dataset
+- Mediana: el largo "del centro" cuando ordenás todas las URLs por longitud
+- Moda: el largo que más se repite
+- Rango: diferencia entre la URL más larga y la más corta
+- Desviación estándar: qué tan variadas son las longitudes
+
+Esto es valioso porque te dice "las URLs maliciosas en este dataset promedian 150 caracteres, las benignas 35".
+
+Para poder hacer esto, `BaseDatosURL` necesita un método que dado un índice de feature (0 para numDots, 1 para urlLength, etc.) devuelva todos los valores de esa columna como un `vector<int>`. Con ese vector podés llamar a cualquiera de las 5 funciones estadísticas.
+
+**Pregunta:** ¿Cómo declararías ese método en el `.h`? ¿Cómo lo implementarías en el `.cpp`? Pista: tenés que recorrer `urls` y para cada `RegistroURL` acceder al campo que corresponde al índice.
+
+---
+
+## Orden actualizado para terminar el proyecto
+
+```
+[✓] CMakeLists.txt        — ya está bien
+[✓] main.cpp              — ya está bien
+[ ] DataStructures.h      — corregir errores A, B, C, D, E; agregar F (moda)
+[ ] DataStructures.cpp    — corregir errores G, H, I; mover cuerpos del .h
+[ ] DataLoader.cpp        — corregir error J (includes + cargarCSV + cargar)
+[ ] mainwindow.h          — corregir errores K, L, M
+[ ] mainwindow.cpp        — implementar desde cero (error N)
+```
+
+**Estrategia:** empezá siempre por `DataStructures.h` y compilá apenas lo terminés. Los errores que aparezcan ahí son los más difíciles de rastrear si los dejás para el final.

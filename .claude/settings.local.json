@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Proyectos\\\\ADAM\\\\Cod1\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(ConvertFrom-Csv)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Proyectos\\\\ADAM\\\\Cod1\" -Recurse -Force | Select-Object FullName | Sort-Object FullName | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\monitoria\\\\deploy_fabiana\" -Recurse -Force 2>$null | Select-Object FullName | Sort-Object FullName | ForEach-Object { $_.FullName })",
+      "Bash(grep -v \"^\\\\\\\\.\")"
+    ]
+  }
+}
