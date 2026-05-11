@@ -1,6 +1,3 @@
-// eyyyy aca vamos a hacer esto jejejej
-// Proyecto de Fabiana: clases RegistroURL, TendenciaURL y BaseDatosURL — C++ puro, sin Qt
-
 #include <iostream>
 #include <string>
 #include <cmath>     // Esta libreria la traemos únicamente para poder hacer sqrt()
@@ -9,12 +6,13 @@
 using namespace std;
 
 
+enum class TipoURL { Benigna = 0, Phishing = 1, Maleware = 2, Defacement = 3, Nuevo =4};
 // 1. CLASE DE URL ÚNICA 
 
-// En esta clase se analiza el constructor general para las URLS. Es importante tener en cuenta que se replica el modelo para conseguir 
-// un análisis completo de las URLS como objetos.
+// En esta clase se analiza el constructor general para las URLS. Es importante tener en cuenta que se replica el modelo para conseguir un análisis completo de las URLS como objetos.
 class caracteristicas_URL {
     private:
+        TipoURL tipo;
         string url;
         int url_length; 
         int cant_dot;
@@ -23,8 +21,9 @@ class caracteristicas_URL {
         int cant_query; 
     
     public:
-        // CONSTRUCTOR CARACTERISTICAS 
+        // CONSTRUCTOR (función) CARACTERISTICAS 
         caracteristicas_URL(string url, int url_length, int cant_dot, int cant_underscore, int cant_hyphen, int cant_query) {
+            this-> tipo = 4;
             this-> url = url;                       
             this-> url_length = url_length ;
             this-> cant_dot = cant_dot ;
@@ -37,6 +36,9 @@ class caracteristicas_URL {
         ~caracteristicas_URL() {};
                 
         // GETTERS 
+        TipoURL get_tipo() {
+            return tipo;
+        }
         string get_url() { 
             return url; 
         }
@@ -57,6 +59,9 @@ class caracteristicas_URL {
         }
         
         // SETTERS 
+        void set_tipo(TipoURL tipo){
+            this-> tipo = tipo;
+        }
         void set_url(string url) { 
             this-> url = url;  // this-> para asignar un puntero en un dirección de memoria
         }
@@ -78,30 +83,7 @@ class caracteristicas_URL {
 };
 
 
-// 2. FUNCIONES EXTERNAS PARA ACCEDER 
-
-string get_url(caracteristicas_URL &link) {  //Para accerder al puntero, & llama al atributo en la dirección de memoria
-    return link.get_url(); 
-}
-int get_url_length(caracteristicas_URL &link) { 
-    return link.get_url_length();
-} 
-int get_cant_dot(caracteristicas_URL &link) { 
-    return link.get_cant_dot(); 
-}
-int get_cant_underscore(caracteristicas_URL &link) { 
-    return link.get_cant_underscore(); 
-}
-int get_cant_hyphen(caracteristicas_URL &link) {
-    return link.get_cant_hyphen(); 
-}
-int get_cant_query(caracteristicas_URL &link) { 
-    return link.get_cant_query(); 
-}
-
-
-
-// 3. FUNCIÓN PARA ANALIZAR UNA SOLA URL
+// 2. FUNCIÓN PARA ANALIZAR UNA SOLA URL
 
 caracteristicas_URL analizar_una_url(string url_ingresada) {
     int dots = 0, underscores = 0, hyphens = 0, queries = 0;
@@ -142,21 +124,18 @@ caracteristicas_URL analizar_una_url(string url_ingresada) {
 }
 
 
-// 4. BASE DE DATOS EN MEMORIA
+// 3. BASE DE DATOS EN MEMORIA
 class BaseDatosURL {
-public:
-    vector<RegistroURL> urls;
-
-    void agregar(const RegistroURL& r);
-    ResultadoAnalisis analizar(const string& url) const;
-    map<TipoURL, int> distribucionPorTipo() const;
-    int total() const;
-
-    static RegistroURL extraerParametros(const std::string& url);
-
-private:
-    double distancia(const RegistroURL& a, const RegistroURL& b) const;
-};
+    public:
+        double distancia(const RegistroURL& a, const RegistroURL& b) const;
+    private:
+        vector<RegistroURL> urls;
+        void agregar(const RegistroURL& r);
+        ResultadoAnalisis analizar(const string& url) const;
+        map<TipoURL, int> distribucionPorTipo() const;
+        int total() const;
+        static RegistroURL extraerParametros(const std::string& url);
+    };
 
 
 // 5. FUNCIONES DE ESTADÍSTICA (Medidas de Tendencia Central y de Dispersión)

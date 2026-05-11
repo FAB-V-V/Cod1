@@ -1,6 +1,3 @@
-// eyyyy aca vamos a hacer esto jejejej
-// Proyecto de Fabiana: Análisis de URLs — configuración del build con Qt 6, Charts y QXlsx
-
 cmake_minimum_required(VERSION 3.16)
 project(proyecto_urls_fabiana VERSION 1.0 LANGUAGES CXX)
 
