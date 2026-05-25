@@ -10,34 +10,29 @@ using namespace std;
 
 enum class TipoURL { Benigna = 0, Phishing = 1, Maleware = 2, Defacement = 3, Nuevo = 4 };
 
-// Registro completo de una URL para K-NN (9 características numéricas)
-struct RegistroURL {
+// Registro completo de una URL para K-NN (comapara características numéricas)
+struct RegistroURL { 
     TipoURL tipo;
-    int subdomainLevels;
     int urlLength;
     int dots;
     int underscores;
     int hyphens;
     int queries;
-    int atSigns;
-    int slashes;
-    int hasHttps;
 };
 
 // Resultado que se le muestra al usuario tras el análisis K-NN
+// Representa una URL que ya está clasificada y vive en el dataset
 struct ResultadoAnalisis {
+    tring url;        //la URL que se analizó
     TipoURL clasificacion;
     float confianza;
-    int urlLength;
-    int dots;
-    int underscores;
-    int hyphens;
-    int queries;
-    map<TipoURL, int> distribucion; // votos de los K vecinos
+    double scoreBenigna, scorePhishing, scoreMaleware, scoreDefacement;
+    int urlLength, dots, underscores, hyphens, queries;
+    map<TipoURL, int> distribucion; 
 };
 
 
-// 1. CLASE DE URL ÚNICA
+// CLASE DE URL ÚNICA
 // Analiza una URL como objeto con sus 5 características básicas.
 class caracteristicas_URL {
 private:
@@ -71,7 +66,7 @@ public:
 };
 
 
-// 3. BASE DE DATOS EN MEMORIA (K-NN)
+// BASE DE DATOS EN MEMORIA (K-NN)
 class BaseDatosURL {
 public:
     void agregar(const RegistroURL& r);
@@ -86,10 +81,10 @@ private:
 };
 
 
-// 2. FUNCIÓN PARA ANALIZAR UNA SOLA URL
+// FUNCIÓN PARA ANALIZAR UNA SOLA URL
 caracteristicas_URL analizar_una_url(string url_ingresada);
 
-// 5. FUNCIONES DE ESTADÍSTICA
+// FUNCIONES DE ESTADÍSTICA
 float calcular_promedio(int lista[], int tamano);
 void  ordenar_lista(int lista[], int tamano);
 float calcular_mediana(int lista_original[], int tamano);
@@ -98,5 +93,5 @@ float elevar_potencia(float base, int exponente);
 float calcular_varianza(int lista[], int tamano, float promedio);
 float calcular_desviacion(float varianza);
 
-// 5. EXTRACCIÓN Y ANÁLISIS DE BASE DE DATOS (simulación pequeña)
+// EXTRACCIÓN Y ANÁLISIS DE BASE DE DATOS (simulación pequeña)
 void simular_procesamiento_base_datos();
