@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QString>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFont>
 #include <QChart>
 #include <QChartView>
@@ -14,8 +15,9 @@
 #include <QPainter>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    db = DataLoader::cargar();
+    db = DataLoader::cargar();   // carga y une las dos bases por defecto
     setupUI();
+    actualizarEstadoBD();        // refleja en la UI cuantos registros se cargaron
 }
 
 MainWindow::~MainWindow() {}
@@ -79,19 +81,27 @@ void MainWindow::setupUI() {
     QHBoxLayout* inputRow = new QHBoxLayout();
     inputURL     = new QLineEdit(this);
     btnAnalizar  = new QPushButton("Analizar", this);
-    btnCargarCSV = new QPushButton("Cargar CSV", this);
     inputURL->setPlaceholderText("Ingrese una URL...");
     inputRow->addWidget(inputURL);
     inputRow->addWidget(btnAnalizar);
-    inputRow->addWidget(btnCargarCSV);
     mainLayout->addLayout(inputRow);
+
+    // Fila para cargar las dos bases de datos (phishing + benignas)
+    QHBoxLayout* basesRow = new QHBoxLayout();
+    btnCargarPhishing = new QPushButton("Cargar BD Phishing", this);
+    btnCargarBenignas = new QPushButton("Cargar BD Benignas", this);
+    basesRow->addWidget(btnCargarPhishing);
+    basesRow->addWidget(btnCargarBenignas);
+    mainLayout->addLayout(basesRow);
 
     // Etiquetas de resultado
     lblClasificacion = new QLabel("Clasificación: -", this);
     lblConfianza     = new QLabel("Confianza: -",     this);
+    lblEstadoBD      = new QLabel("Base unida: -",    this);
     lblClasificacion->setFont(QFont("Segoe UI", 11, QFont::Bold));
     mainLayout->addWidget(lblClasificacion);
     mainLayout->addWidget(lblConfianza);
+    mainLayout->addWidget(lblEstadoBD);
 
     // Gráfica 1: características de la URL
     mainLayout->addWidget(crearGrafica(
@@ -106,10 +116,11 @@ void MainWindow::setupUI() {
         setDistribucion, ejeDistribucion));
     ejeDistribucion->setRange(0, 5);            // los votos van de 0 a K
 
-    connect(btnAnalizar,  &QPushButton::clicked, this, &MainWindow::onAnalizarClicked);
-    connect(btnCargarCSV, &QPushButton::clicked, this, &MainWindow::onCargarCSVClicked);
+    connect(btnAnalizar,       &QPushButton::clicked, this, &MainWindow::onAnalizarClicked);
+    connect(btnCargarPhishing, &QPushButton::clicked, this, &MainWindow::onCargarPhishingClicked);
+    connect(btnCargarBenignas, &QPushButton::clicked, this, &MainWindow::onCargarBenignasClicked);
 
-    resize(720, 720);
+    resize(720, 760);
 }
 
 void MainWindow::mostrarResultado(const ResultadoAnalisis& r) {
@@ -146,8 +157,43 @@ void MainWindow::onAnalizarClicked() {
     mostrarResultado(resultado);
 }
 
-void MainWindow::onCargarCSVClicked() {
-    QString ruta = QFileDialog::getOpenFileName(this, "Abrir CSV", "", "CSV (*.csv)");
+void MainWindow::onCargarPhishingClicked() {
+    QString ruta = QFileDialog::getOpenFileName(this, "Abrir base de PHISHING", "", "CSV (*.csv)");
     if (ruta.isEmpty()) return;
-    db = DataLoader::cargar(ruta.toStdString());
+    rutaPhishing = ruta;
+    recargarBaseUnida();
+}
+
+void MainWindow::onCargarBenignasClicked() {
+    QString ruta = QFileDialog::getOpenFileName(this, "Abrir base de BENIGNAS", "", "CSV (*.csv)");
+    if (ruta.isEmpty()) return;
+    rutaBenignas = ruta;
+    recargarBaseUnida();
+}
+
+void MainWindow::recargarBaseUnida() {
+    if (rutaPhishing.isEmpty() && rutaBenignas.isEmpty())
+        return;
+
+    // une las bases cargadas en una sola: esta es la que analiza el K-NN.
+    db = DataLoader::unir(rutaPhishing.toStdString(), rutaBenignas.toStdString());
+
+    // si ya estan las dos bases, guardamos la union en un tercer archivo
+    // (junto a la base de phishing seleccionada), reconstruyendo el dataset original.
+    if (!rutaPhishing.isEmpty() && !rutaBenignas.isEmpty()) {
+        QString salida = QFileInfo(rutaPhishing).absolutePath() + "/BASE_DATOS_UNIDA.csv";
+        DataLoader::guardarUnion(rutaPhishing.toStdString(),
+                                 rutaBenignas.toStdString(),
+                                 salida.toStdString());
+    }
+
+    actualizarEstadoBD();
+}
+
+void MainWindow::actualizarEstadoBD() {
+    auto dist = db.distribucionPorTipo();
+    int phishing = dist.count(TipoURL::Phishing) ? dist[TipoURL::Phishing] : 0;
+    int benignas = dist.count(TipoURL::Benigna)  ? dist[TipoURL::Benigna]  : 0;
+    lblEstadoBD->setText(QString("Base unida: %1 registros  (Phishing: %2, Benignas: %3)")
+                             .arg(db.total()).arg(phishing).arg(benignas));
 }

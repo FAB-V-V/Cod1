@@ -4,29 +4,79 @@
 #include <QString>
 #include <QStringList>
 
-// Nombre del CSV de tendencias (URLs ya etiquetadas como benignas/phishing).
+// Rutas por defecto de las dos bases de datos (ya separadas por tipo).
 // PROJECT_DATA_DIR lo define CMake con la ruta absoluta de la carpeta /data.
 #ifdef PROJECT_DATA_DIR
-static const std::string CSV_TENDENCIAS =
-    std::string(PROJECT_DATA_DIR) + "/BASE DE DATOS 1(d92e3cc325339e8e82d3f498ae69618).csv";
+static const std::string CSV_PHISHING = std::string(PROJECT_DATA_DIR) + "/BASE_DATOS_PHISHING.csv";
+static const std::string CSV_BENIGNAS = std::string(PROJECT_DATA_DIR) + "/BASE_DATOS_BENIGNAS.csv";
+static const std::string CSV_UNIDA    = std::string(PROJECT_DATA_DIR) + "/BASE_DATOS_UNIDA.csv";
 #else
-static const std::string CSV_TENDENCIAS = "";
+static const std::string CSV_PHISHING = "";
+static const std::string CSV_BENIGNAS = "";
+static const std::string CSV_UNIDA    = "";
 #endif
 
-BaseDatosURL DataLoader::cargar(const std::string& rutaCSV) {
-    BaseDatosURL db;
+BaseDatosURL DataLoader::cargar() {
+    // unimos las dos bases por defecto: phishing + benignas -> una sola base a analizar.
+    BaseDatosURL db = unir(CSV_PHISHING, CSV_BENIGNAS);
 
-    // sin parámetro -> usamos el CSV de tendencias por defecto; con parámetro, el del usuario.
-    std::string ruta = rutaCSV.empty() ? CSV_TENDENCIAS : rutaCSV;
+    // si ambas bases existen, dejamos guardada la union en el tercer archivo.
+    if (!CSV_UNIDA.empty() && db.total() > 0)
+        guardarUnion(CSV_PHISHING, CSV_BENIGNAS, CSV_UNIDA);
 
-    if (!ruta.empty())
-        cargarCSV(db, ruta);
-
-    // si el CSV no se pudo abrir o estaba vacío, caemos en datos demo para no quedar sin base.
+    // si no se pudo abrir ningun CSV, caemos en datos demo para no quedar sin base.
     if (db.total() == 0)
         cargarDemo(db);
 
     return db;
+}
+
+BaseDatosURL DataLoader::unir(const std::string& rutaPhishing, const std::string& rutaBenignas) {
+    BaseDatosURL db;
+
+    // cargamos las dos bases sobre la MISMA base en memoria: el resultado equivale
+    // al archivo original completo (la clasificacion de cada fila la marca CLASS_LABEL).
+    if (!rutaPhishing.empty())
+        cargarCSV(db, rutaPhishing);
+    if (!rutaBenignas.empty())
+        cargarCSV(db, rutaBenignas);
+
+    return db;
+}
+
+bool DataLoader::guardarUnion(const std::string& rutaPhishing,
+                              const std::string& rutaBenignas,
+                              const std::string& rutaSalida) {
+    QFile salida(QString::fromStdString(rutaSalida));
+    if (!salida.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+        return false;   // no se pudo crear el tercer archivo
+
+    QTextStream out(&salida);
+
+    // copia las filas de un CSV al archivo de salida; conCabecera decide si se
+    // escribe tambien la fila de encabezado (solo la queremos una vez, al inicio).
+    auto copiar = [&out](const QString& ruta, bool conCabecera) {
+        QFile in(ruta);
+        if (!in.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
+        QTextStream ts(&in);
+        bool primera = true;
+        while (!ts.atEnd()) {
+            QString linea = ts.readLine();
+            if (primera) {                 // la primera linea es el encabezado
+                primera = false;
+                if (!conCabecera) continue;
+            }
+            if (linea.trimmed().isEmpty()) continue;
+            out << linea << "\n";
+        }
+        in.close();
+    };
+
+    copiar(QString::fromStdString(rutaPhishing), true);   // cabecera + filas phishing
+    copiar(QString::fromStdString(rutaBenignas), false);  // solo filas benignas (sin repetir cabecera)
+    salida.close();
+    return true;
 }
 
 void DataLoader::cargarCSV(BaseDatosURL& db, const std::string& ruta) {

@@ -54,3 +54,6 @@ $RECYCLE.BIN/
 # MinGW / MSVC
 *.pch
 *.gch
+
+# Base de datos unida (se regenera al unir phishing + benignas)
+BASE_DATOS_UNIDA.csv
