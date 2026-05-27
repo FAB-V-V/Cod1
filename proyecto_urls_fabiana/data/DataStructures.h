@@ -6,24 +6,22 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
-enum class TipoURL { Benigna = 0, Phishing = 1, Maleware = 2, Defacement = 3, Nuevo = 4 };
+enum class TipoURL { Benigna = 0, Phishing = 1, Maleware = 2, Defacement = 3};
 
 // Registro completo de una URL para K-NN (comapara características numéricas)
 struct RegistroURL { 
     TipoURL tipo;
     int urlLength;
-    int dots;
-    int underscores;
-    int hyphens;
-    int queries;
+    int numDots;
+    int numUnderscores;
+    int numDash;
+    int numQueries;
 };
 
 // Resultado que se le muestra al usuario tras el análisis K-NN
 // Representa una URL que ya está clasificada y vive en el dataset
 struct ResultadoAnalisis {
-    tring url;        //la URL que se analizó
+    std::string url;        //la URL que se analizó
     TipoURL clasificacion;
     float confianza;
     double scoreBenigna, scorePhishing, scoreMaleware, scoreDefacement;
