@@ -9,7 +9,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets Charts)        #buscar Qt6 ins
 
 qt_standard_project_setup()
 
-qt_add_executable(proyecto_urls            # lista de todos los archivos que se van a usar
+qt_add_executable(proyecto_urls_fabiana            # lista de todos los archivos que se van a usar
     WIN32
     main.cpp
     mainwindow.h
