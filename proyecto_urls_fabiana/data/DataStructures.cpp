@@ -1,61 +1,98 @@
 #include "DataStructures.h"
 
-// --- caracteristicas_URL ---
+// caracteristicas_URL
 
-caracteristicas_URL::caracteristicas_URL(string url, int url_length, int cant_dot,
-                                         int cant_underscore, int cant_hyphen, int cant_query) {
-    this->tipo           = TipoURL::Nuevo; // era "= 4", no se puede asignar int a enum class
-    this->url            = url;
-    this->url_length     = url_length;
-    this->cant_dot       = cant_dot;
+caracteristicas_URL::caracteristicas_URL(string url, int url_length, int cant_dot, int cant_underscore, int cant_hyphen, int cant_query) {
+    this->tipo = TipoURL::Benigna;    //Por defecto inicia en benigna
+    this->url = url;
+    this->url_length = url_length;
+    this->cant_dot = cant_dot;
     this->cant_underscore= cant_underscore;
-    this->cant_hyphen    = cant_hyphen;
-    this->cant_query     = cant_query;
+    this->cant_hyphen = cant_hyphen;
+    this->cant_query = cant_query;
 }
 
-TipoURL caracteristicas_URL::get_tipo()          { return tipo; }
-string  caracteristicas_URL::get_url()            { return url; }
-int     caracteristicas_URL::get_url_length()     { return url_length; }
-int     caracteristicas_URL::get_cant_dot()       { return cant_dot; }
-int     caracteristicas_URL::get_cant_underscore(){ return cant_underscore; }
-int     caracteristicas_URL::get_cant_hyphen()    { return cant_hyphen; }
-int     caracteristicas_URL::get_cant_query()     { return cant_query; }
+TipoURL caracteristicas_URL::get_tipo(){ 
+    return tipo; 
+}
+string caracteristicas_URL::get_url(){
+    return url; 
+}
+int caracteristicas_URL::get_url_length(){ 
+    return url_length; 
+}
+int caracteristicas_URL::get_cant_dot(){
+    return cant_dot; 
+}
+int caracteristicas_URL::get_cant_underscore(){
+    return cant_underscore; 
+}
+int caracteristicas_URL::get_cant_hyphen(){
+    return cant_hyphen; 
+}
+int caracteristicas_URL::get_cant_query(){
+    return cant_query;
+}
 
-void caracteristicas_URL::set_tipo(TipoURL t)  { tipo = t; }
-void caracteristicas_URL::set_url(string u)    { url = u; }
-void caracteristicas_URL::set_url_length(int v){ url_length = v; }
-void caracteristicas_URL::set_cant_dot(int v)  { cant_dot = v; }
-void caracteristicas_URL::set_cant_underscore(int v){ cant_underscore = v; }
-void caracteristicas_URL::set_cant_hyphen(int v)    { cant_hyphen = v; }
-void caracteristicas_URL::set_cant_query(int v)     { cant_query = v; }
+void caracteristicas_URL::set_tipo(TipoURL t){
+    tipo = t;
+}
+void caracteristicas_URL::set_url(string u){
+    url = u;
+}
+void caracteristicas_URL::set_url_length(int v){
+    url_length = v;
+}
+void caracteristicas_URL::set_cant_dot(int v){
+    cant_dot = v; 
+
+void caracteristicas_URL::set_cant_underscore(int v){
+    cant_underscore = v;
+}
+void caracteristicas_URL::set_cant_hyphen(int v){
+    cant_hyphen = v;
+}
+void caracteristicas_URL::set_cant_query(int v){
+    cant_query = v;
+}
 
 
-// 2. FUNCIÓN PARA ANALIZAR UNA SOLA URL
-
+// FUNCIÓN PARA ANALIZAR UNA SOLA URL
 caracteristicas_URL analizar_una_url(string url_ingresada) {
     int dots = 0, underscores = 0, hyphens = 0, queries = 0;
     bool tiene_query = false;
     int length = url_ingresada.length();
 
-    for (int i = 0; i < length; i++) {
+    for(int i = 0; i < length; i++) {
         char c = url_ingresada[i];
 
-        if      (c == '.') dots++;
-        else if (c == '_') underscores++;
-        else if (c == '-') hyphens++;
+        if(c == '.'){
+            dots++;
+        }
+        else if(c == '_'){
+           underscores++;
+        }
+        else if(c == '-'){
+            hyphens++;
+        }
 
         // Lógica para los componentes de consulta (Query)
-        if (c == '?') tiene_query = true;
-        if (tiene_query && c == '&') queries++;
+        if(c == '?'){
+            tiene_query = true;
+        }
+        if(tiene_query && c == '&'){
+            queries++;
+        }
     }
-    if (tiene_query) queries++;
+    if(tiene_query){
+        queries++;
+    }
 
     return caracteristicas_URL(url_ingresada, length, dots, underscores, hyphens, queries);
 }
 
 
-// 5. FUNCIONES DE ESTADÍSTICA
-
+// FUNCIONES DE ESTADÍSTICA
 float calcular_promedio(int lista[], int tamano) {
     float suma = 0;
     for (int i = 0; i < tamano; i++) suma += lista[i];
@@ -113,33 +150,39 @@ float calcular_desviacion(float varianza) {
 }
 
 
-// --- BaseDatosURL ---
+// BaseDatosURL 
 
 RegistroURL BaseDatosURL::extraerParametros(const string& url) {
     RegistroURL r;
-    r.tipo           = TipoURL::Nuevo;
-    r.urlLength      = (int)url.size();
-    r.dots           = 0;
-    r.underscores    = 0;
-    r.hyphens        = 0;
-    r.queries        = 0;
-    r.atSigns        = 0;
-    r.slashes        = 0;
-    r.subdomainLevels= 0;
-    r.hasHttps       = (url.find("https://") != string::npos) ? 1 : 0;
+    r.tipo = TipoURL::Nuevo;
+    r.urlLength = (int)url.size();
+    r.dots = 0;
+    r.underscores = 0;
+    r.hyphens = 0;
+    r.queries = 0;
 
     bool tiene_query = false;
     for (char c : url) {
-        if      (c == '.') r.dots++;
-        else if (c == '_') r.underscores++;
-        else if (c == '-') r.hyphens++;
-        else if (c == '/') r.slashes++;
-        else if (c == '@') r.atSigns++;
+        if (c == '.'){
+            r.dots++;
+        }
+        else if (c == '_'){
+            r.underscores++;
+        }
+        else if (c == '-'){
+            r.hyphens++;
+        }
 
-        if (c == '?') tiene_query = true;
-        if (tiene_query && c == '&') r.queries++;
+        if (c == '?'){
+            tiene_query = true;
+        }
+        if (tiene_query && c == '&'){
+            r.queries++;
+        }
     }
-    if (tiene_query) r.queries++;
+    if (tiene_query){
+        r.queries++;
+    }
 
     r.subdomainLevels = r.dots; // aproximación: niveles de dominio ≈ cantidad de puntos
 
@@ -148,14 +191,11 @@ RegistroURL BaseDatosURL::extraerParametros(const string& url) {
 
 double BaseDatosURL::distancia(const RegistroURL& a, const RegistroURL& b) const {
     double d = 0;
-    d += pow(a.urlLength  - b.urlLength,  2);
-    d += pow(a.dots       - b.dots,       2);
-    d += pow(a.underscores- b.underscores,2);
-    d += pow(a.hyphens    - b.hyphens,    2);
-    d += pow(a.queries    - b.queries,    2);
-    d += pow(a.atSigns    - b.atSigns,    2);
-    d += pow(a.slashes    - b.slashes,    2);
-    d += pow(a.hasHttps   - b.hasHttps,   2);
+    d += pow(a.urlLength - b.urlLength, 2);
+    d += pow(a.dots - b.dots, 2);
+    d += pow(a.underscores - b.underscores, 2);
+    d += pow(a.hyphens - b.hyphens, 2);
+    d += pow(a.queries - b.queries, 2);
     return sqrt(d);
 }
 
@@ -169,7 +209,9 @@ int BaseDatosURL::total() const {
 
 map<TipoURL, int> BaseDatosURL::distribucionPorTipo() const {
     map<TipoURL, int> dist;
-    for (const auto& u : urls) dist[u.tipo]++;
+    for (const auto& u : urls) {
+        dist[u.tipo]++;
+    }
     return dist;
 }
 
@@ -180,19 +222,23 @@ ResultadoAnalisis BaseDatosURL::analizar(const string& url) const {
     const int K = 5;
     vector<pair<double, TipoURL>> distancias;
     distancias.reserve(urls.size());
-    for (const auto& r : urls)
+    for (const auto& r : urls){
         distancias.push_back({distancia(consulta, r), r.tipo});
+    }
     sort(distancias.begin(), distancias.end());
 
     map<TipoURL, int> votos;
     int k = min(K, (int)distancias.size());
-    for (int i = 0; i < k; i++)
+    for (int i = 0; i < k; i++){
         votos[distancias[i].second]++;
+    }
 
     TipoURL ganador = TipoURL::Benigna;
     int maxVotos = 0;
-    for (auto& [tipo, cnt] : votos) {
-        if (cnt > maxVotos) { maxVotos = cnt; ganador = tipo; }
+    for (auto& [tipo, cnt] : votos){
+        if (cnt > maxVotos){
+            maxVotos = cnt; ganador = tipo;
+        }
     }
 
     ResultadoAnalisis res;
@@ -208,7 +254,7 @@ ResultadoAnalisis BaseDatosURL::analizar(const string& url) const {
 }
 
 
-// 5. EXTRACCIÓN Y ANÁLISIS DE BASE DE DATOS (simulación pequeña)
+// EXTRACCIÓN Y ANÁLISIS DE BASE DE DATOS (simulación pequeña)
 
 void simular_procesamiento_base_datos() {
     const int TAMANO_BD = 5;
