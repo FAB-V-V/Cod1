@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QProgressBar>
 #include "data/DataStructures.h"
+#include "data/DataLoader.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -16,12 +17,13 @@ public:
 private:
     void setupUI();
     void mostrarResultado(const ResultadoAnalisis& r);
+    void actualizarEstadisticas();
 
-    QLineEdit*    inputURL;
-    QPushButton*  btnAnalizar;
-    QPushButton*  btnCargarCSV;
-    QLabel*       lblClasificacion;
-    QLabel*       lblConfianza;
+    QLineEdit* inputURL;
+    QPushButton* btnAnalizar;
+    QPushButton* btnCargarCSV;
+    QLabel* lblClasificacion;
+    QLabel* lblConfianza;
 
     QProgressBar* url_length;
     QProgressBar* cant_dot;
@@ -33,6 +35,8 @@ private:
     QProgressBar* barPhising;
     QProgressBar* barDefacement;
     QProgressBar* barMaleware;
+
+    QTextEdit* areaStats
 
     BaseDatosURL  db;
 
