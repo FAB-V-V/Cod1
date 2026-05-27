@@ -1,4 +1,7 @@
 #include "DataLoader.h"
+#include <QFile>
+#include <QTextStream>
+#include <QString>
 
 BaseDatosURL DataLoader::cargar(const std::string& rutaCSV) {
     BaseDatosURL db;
