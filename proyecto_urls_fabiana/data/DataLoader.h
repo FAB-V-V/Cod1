@@ -12,7 +12,6 @@ public:
     static BaseDatosURL cargar(const std::string& rutaCSV = "");
     
 private:
-    static void cargarCSV1(BaseDatosURL& db, const std::string& ruta);    // carga base1_features.csv  /  Benigna (Label=0) y Phishing (Label=1)
-    static void cargarCSV2(BaseDatosURL& db, const std::string& ruta);    // carga base2_features.csv  /  Maleware y Defacement
+    static void cargarCSV(BaseDatosURL& db, const std::string& ruta);     // carga el CSV indicado por el usuario
     static void cargarDemo(BaseDatosURL& db);                             // datos de prueba minimos para que el K-NN funcione aunque no haya CSVs
 };

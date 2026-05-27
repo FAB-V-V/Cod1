@@ -6,16 +6,25 @@
 #include <vector>
 #include <map>
 
-enum class TipoURL { Benigna = 0, Phishing = 1, Maleware = 2, Defacement = 3};
+using namespace std;   // el resto del código usa string/vector/map/cout sin calificar
 
-// Registro completo de una URL para K-NN (comapara características numéricas)
-struct RegistroURL { 
+// Nuevo = URL aún sin clasificar (la que ingresa el usuario para analizar)
+enum class TipoURL { Benigna = 0, Phishing = 1, Maleware = 2, Defacement = 3, Nuevo = 4 };
+
+// Registro completo de una URL para K-NN (compara características numéricas)
+// El orden de los campos debe coincidir con la inicialización en DataLoader.cpp:
+// {tipo, subdomainLevels, urlLength, dots, underscores, hyphens, queries, atSigns, slashes, hasHttps}
+struct RegistroURL {
     TipoURL tipo;
+    int subdomainLevels;
     int urlLength;
-    int numDots;
-    int numUnderscores;
-    int numDash;
-    int numQueries;
+    int dots;
+    int underscores;
+    int hyphens;
+    int queries;
+    int atSigns;
+    int slashes;
+    int hasHttps;
 };
 
 // Resultado que se le muestra al usuario tras el análisis K-NN
@@ -76,6 +85,10 @@ public:
 private:
     vector<RegistroURL> urls;
     static RegistroURL extraerParametros(const string& url);
+
+    // máximos por característica (se actualizan en agregar) para normalizar la distancia
+    // y evitar que urlLength, al ser mucho mayor, aplaste al resto de features.
+    int maxUrlLength = 1, maxDots = 1, maxUnderscores = 1, maxHyphens = 1, maxQueries = 1;
 };
 
 

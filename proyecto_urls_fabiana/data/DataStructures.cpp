@@ -44,8 +44,8 @@ void caracteristicas_URL::set_url_length(int v){
     url_length = v;
 }
 void caracteristicas_URL::set_cant_dot(int v){
-    cant_dot = v; 
-
+    cant_dot = v;
+}
 void caracteristicas_URL::set_cant_underscore(int v){
     cant_underscore = v;
 }
@@ -190,17 +190,29 @@ RegistroURL BaseDatosURL::extraerParametros(const string& url) {
 }
 
 double BaseDatosURL::distancia(const RegistroURL& a, const RegistroURL& b) const {
+    // distancia euclidiana normalizada: cada diferencia se divide por el máximo de su
+    // característica, de modo que todas pesen entre 0 y 1 (urlLength deja de dominar).
+    auto term = [](int x, int y, int m) {
+        double dif = double(x - y) / (m > 0 ? m : 1);
+        return dif * dif;
+    };
     double d = 0;
-    d += pow(a.urlLength - b.urlLength, 2);
-    d += pow(a.dots - b.dots, 2);
-    d += pow(a.underscores - b.underscores, 2);
-    d += pow(a.hyphens - b.hyphens, 2);
-    d += pow(a.queries - b.queries, 2);
+    d += term(a.urlLength,    b.urlLength,    maxUrlLength);
+    d += term(a.dots,         b.dots,         maxDots);
+    d += term(a.underscores,  b.underscores,  maxUnderscores);
+    d += term(a.hyphens,      b.hyphens,      maxHyphens);
+    d += term(a.queries,      b.queries,      maxQueries);
     return sqrt(d);
 }
 
 void BaseDatosURL::agregar(const RegistroURL& r) {
     urls.push_back(r);
+    // actualizamos los máximos para la normalización de la distancia
+    maxUrlLength   = max(maxUrlLength,   r.urlLength);
+    maxDots        = max(maxDots,        r.dots);
+    maxUnderscores = max(maxUnderscores, r.underscores);
+    maxHyphens     = max(maxHyphens,     r.hyphens);
+    maxQueries     = max(maxQueries,     r.queries);
 }
 
 int BaseDatosURL::total() const {

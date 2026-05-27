@@ -3,7 +3,8 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
-#include <QProgressBar>
+#include <QBarSet>
+#include <QValueAxis>
 #include "data/DataStructures.h"
 #include "data/DataLoader.h"
 
@@ -17,7 +18,10 @@ public:
 private:
     void setupUI();
     void mostrarResultado(const ResultadoAnalisis& r);
-    void actualizarEstadisticas();
+
+    // crea una gráfica de barras con degradado verde->azul y la devuelve lista para insertar
+    QWidget* crearGrafica(const QString& titulo, const QStringList& categorias,
+                          QBarSet*& setSalida, QValueAxis*& ejeYSalida);
 
     QLineEdit* inputURL;
     QPushButton* btnAnalizar;
@@ -25,18 +29,13 @@ private:
     QLabel* lblClasificacion;
     QLabel* lblConfianza;
 
-    QProgressBar* url_length;
-    QProgressBar* cant_dot;
-    QProgressBar* cant_underscore;
-    QProgressBar* cant_hyphen;
-    QProgressBar* cant_query;
+    // Gráfica 1: características numéricas de la URL analizada
+    QBarSet*    setCaracteristicas;
+    QValueAxis* ejeCaracteristicas;
 
-    QProgressBar* barBenigna;
-    QProgressBar* barPhising;
-    QProgressBar* barDefacement;
-    QProgressBar* barMaleware;
-
-    QTextEdit* areaStats
+    // Gráfica 2: distribución de votos de los K vecinos más cercanos
+    QBarSet*    setDistribucion;
+    QValueAxis* ejeDistribucion;
 
     BaseDatosURL  db;
 

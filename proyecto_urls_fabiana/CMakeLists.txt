@@ -20,10 +20,13 @@ qt_add_executable(proyecto_urls_fabiana            # lista de todos los archivos
     data/DataLoader.cpp
 )
 
-target_link_libraries(proyecto_urls                # une el programa con las librerias de Qt
+target_link_libraries(proyecto_urls_fabiana        # une el programa con las librerias de Qt
     PRIVATE Qt6::Core Qt6::Widgets Qt6::Charts
 )
 
-# copiar los archivos CSV al compilador para que el ejecutable los encuentre
-configure_file(data/base1_features.csv ${CMAKE_CURRENT_BINARY_DIR}/data/base1_features.csv COPYONLY)
-configure_file(data/base2_features.csv ${CMAKE_CURRENT_BINARY_DIR}/data/base2_features.csv COPYONLY)
+# Ruta de la carpeta de datos (sin espacios) para que el ejecutable encuentre el CSV
+# de tendencias sin importar desde qué directorio se lance. El nombre del archivo
+# (que sí tiene espacios y paréntesis) se arma como string en DataLoader.cpp.
+target_compile_definitions(proyecto_urls_fabiana PRIVATE
+    "PROJECT_DATA_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/data\""
+)
